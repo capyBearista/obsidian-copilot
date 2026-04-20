@@ -47,7 +47,15 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import React, { ForwardRefExoticComponent, RefAttributes, useRef } from "react";
+import React, {
+  ForwardRefExoticComponent,
+  RefAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,29 +99,62 @@ interface ModelTableHeaderProps {
   title: string;
   onRefresh?: () => void;
   onAdd: () => void;
+  selectedCount: number;
+  onDeleteSelected?: () => void;
+  onSelectAll: () => void;
+  allSelected: boolean;
+  isEmbeddingModel: boolean;
 }
 
-/**
- * Renders the model table header with a title and aligned action buttons.
- */
-const ModelTableHeader: React.FC<ModelTableHeaderProps> = ({ title, onRefresh, onAdd }) => (
-  <div className="tw-mb-3 tw-flex tw-flex-col tw-gap-2 md:tw-flex-row md:tw-items-center md:tw-justify-between">
-    <h3 className="tw-text-xl tw-font-bold">{title}</h3>
-    <div className="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-center sm:tw-justify-end">
-      {onRefresh && (
-        <Button
-          onClick={onRefresh}
-          variant="secondary"
-          className="tw-flex tw-items-center tw-gap-2"
-        >
-          <RefreshCw className="tw-size-2 md:tw-size-4" />
-          Refresh Built-ins
+const ModelTableHeader: React.FC<ModelTableHeaderProps> = ({
+  title,
+  onRefresh,
+  onAdd,
+  selectedCount,
+  onDeleteSelected,
+  onSelectAll,
+  allSelected,
+  isEmbeddingModel,
+}) => (
+  <div className="tw-mb-3 tw-flex tw-flex-col tw-gap-2">
+    <div className="tw-flex tw-flex-col tw-gap-2 md:tw-flex-row md:tw-items-center md:tw-justify-between">
+      <h3 className="tw-text-xl tw-font-bold">{title}</h3>
+      <div className="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-center sm:tw-justify-end">
+        {onRefresh && (
+          <Button
+            onClick={onRefresh}
+            variant="secondary"
+            className="tw-flex tw-items-center tw-gap-2"
+          >
+            <RefreshCw className="tw-size-2 md:tw-size-4" />
+            Refresh Built-ins
+          </Button>
+        )}
+        <Button onClick={onAdd} variant="default" className="tw-flex tw-items-center tw-gap-2">
+          <Plus className="tw-size-2 md:tw-size-4" />
+          Add Model
         </Button>
-      )}
-      <Button onClick={onAdd} variant="default" className="tw-flex tw-items-center tw-gap-2">
-        <Plus className="tw-size-2 md:tw-size-4" />
-        Add Model
-      </Button>
+      </div>
+    </div>
+
+    {selectedCount > 0 && onDeleteSelected && (
+      <div className="tw-flex tw-items-center tw-justify-between tw-rounded-md tw-border tw-border-solid tw-px-3 tw-py-2">
+        <span className="tw-text-sm tw-text-muted">{selectedCount} model(s) selected</span>
+        <Button variant="destructive" size="sm" onClick={onDeleteSelected}>
+          Delete Selected
+        </Button>
+      </div>
+    )}
+
+    <div className="tw-hidden tw-items-center tw-gap-2 md:tw-flex">
+      <Checkbox
+        id={`select-all-${title}`}
+        checked={allSelected && selectedCount > 0}
+        onCheckedChange={onSelectAll}
+      />
+      <label htmlFor={`select-all-${title}`} className="tw-cursor-pointer tw-text-sm tw-text-muted">
+        Select all
+      </label>
     </div>
   </div>
 );
@@ -152,6 +193,8 @@ interface ModelCardProps {
   onUpdateModel: (model: CustomModel) => void;
   id: string;
   containerRef: React.RefObject<HTMLDivElement>;
+  isSelected: boolean;
+  onToggleSelect: () => void;
 }
 
 const ModelCard: React.FC<ModelCardProps> = ({
@@ -162,6 +205,8 @@ const ModelCard: React.FC<ModelCardProps> = ({
   onUpdateModel,
   id,
   containerRef,
+  isSelected,
+  onToggleSelect,
 }) => {
   const dropdownActions: MobileCardDropdownAction<CustomModel>[] = [];
 
@@ -173,7 +218,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
     });
   }
 
-  if (onCopy && !model.core) {
+  if (onCopy) {
     dropdownActions.push({
       icon: <Copy className="tw-size-4" />,
       label: "Copy",
@@ -181,32 +226,36 @@ const ModelCard: React.FC<ModelCardProps> = ({
     });
   }
 
-  if (!model.core) {
-    dropdownActions.push({
-      icon: <Trash2 className="tw-size-4" />,
-      label: "Delete",
-      onClick: () => onDelete(getModelKeyFromModel(model)),
-      variant: "destructive",
-    });
-  }
+  dropdownActions.push({
+    icon: <Trash2 className="tw-size-4" />,
+    label: "Delete",
+    onClick: () => onDelete(getModelKeyFromModel(model)),
+    variant: "destructive",
+  });
 
   const expandedContent = (
-    <div className="tw-flex tw-justify-around">
-      {!model.isEmbeddingModel && (
+    <div className="tw-flex tw-flex-col tw-gap-2">
+      <div className="tw-flex tw-items-center tw-gap-2">
+        <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
+        <span className="tw-text-sm">Select</span>
+      </div>
+      <div className="tw-flex tw-justify-around">
+        {!model.isEmbeddingModel && (
+          <div className="tw-flex tw-items-center tw-gap-2">
+            <span className="tw-text-sm">Enabled</span>
+            <Checkbox
+              checked={model.enabled}
+              onCheckedChange={(checked: boolean) => onUpdateModel({ ...model, enabled: checked })}
+            />
+          </div>
+        )}
         <div className="tw-flex tw-items-center tw-gap-2">
-          <span className="tw-text-sm">Enabled</span>
+          <span className="tw-text-sm">CORS</span>
           <Checkbox
-            checked={model.enabled}
-            onCheckedChange={(checked: boolean) => onUpdateModel({ ...model, enabled: checked })}
+            checked={model.enableCors}
+            onCheckedChange={(checked: boolean) => onUpdateModel({ ...model, enableCors: checked })}
           />
         </div>
-      )}
-      <div className="tw-flex tw-items-center tw-gap-2">
-        <span className="tw-text-sm">CORS</span>
-        <Checkbox
-          checked={model.enableCors}
-          onCheckedChange={(checked: boolean) => onUpdateModel({ ...model, enableCors: checked })}
-        />
       </div>
     </div>
   );
@@ -222,7 +271,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
           <ModelCapabilityIcons capabilities={model.capabilities} iconSize={14} />
         ) : undefined
       }
-      isDraggable={!model.core}
+      isDraggable
       isExpandable
       expandedContent={expandedContent}
       primaryAction={
@@ -248,10 +297,21 @@ const DesktopSortableTableRow: React.FC<{
   onUpdateModel: (model: CustomModel) => void;
   isEmbeddingModel: boolean;
   containerRef: React.RefObject<HTMLDivElement>;
-}> = ({ model, onEdit, onCopy, onDelete, onUpdateModel, isEmbeddingModel, containerRef }) => {
+  isSelected: boolean;
+  onToggleSelect: () => void;
+}> = ({
+  model,
+  onEdit,
+  onCopy,
+  onDelete,
+  onUpdateModel,
+  isEmbeddingModel,
+  containerRef,
+  isSelected,
+  onToggleSelect,
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: getModelKeyFromModel(model),
-    disabled: model.core,
   });
 
   const style = {
@@ -259,7 +319,7 @@ const DesktopSortableTableRow: React.FC<{
     transition,
   };
 
-  const showDropdownMenu = onEdit || !model.core || (onCopy && !model.core);
+  const showDropdownMenu = Boolean(onEdit || onCopy || onDelete);
 
   return (
     <TableRow
@@ -272,17 +332,18 @@ const DesktopSortableTableRow: React.FC<{
       )}
     >
       <TableCell className="tw-w-6 tw-px-2">
-        {!model.core && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="tw-size-6 tw-cursor-grab tw-touch-none tw-p-0 hover:tw-cursor-grab active:tw-cursor-grabbing"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="tw-size-4 tw-transition-colors" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="tw-size-6 tw-cursor-grab tw-touch-none tw-p-0 hover:tw-cursor-grab active:tw-cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="tw-size-4 tw-transition-colors" />
+        </Button>
+      </TableCell>
+      <TableCell className="tw-w-6 tw-px-2">
+        <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
       </TableCell>
       <TableCell className="tw-pl-0">{model.displayName || model.name}</TableCell>
       <TableCell>{getProviderLabel(model.provider, model)}</TableCell>
@@ -334,22 +395,20 @@ const DesktopSortableTableRow: React.FC<{
                   </DropdownMenuItem>
                 )}
 
-                {onCopy && !model.core && (
+                {onCopy && (
                   <DropdownMenuItem onClick={() => onCopy(model)}>
                     <Copy className="tw-mr-2 tw-size-4" />
                     Copy
                   </DropdownMenuItem>
                 )}
 
-                {!model.core && (
-                  <DropdownMenuItem
-                    onClick={() => onDelete(getModelKeyFromModel(model))}
-                    className="tw-text-error"
-                  >
-                    <Trash2 className="tw-mr-2 tw-size-4" />
-                    Delete
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem
+                  onClick={() => onDelete(getModelKeyFromModel(model))}
+                  className="tw-text-error"
+                >
+                  <Trash2 className="tw-mr-2 tw-size-4" />
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -368,6 +427,7 @@ interface ModelTableProps {
   onUpdateModel: (model: CustomModel) => void;
   onReorderModels?: (newModels: CustomModel[]) => void;
   onRefresh?: () => void;
+  onBulkDelete?: (modelKeys: string[]) => void;
   title: string;
 }
 
@@ -380,9 +440,22 @@ export const ModelTable: React.FC<ModelTableProps> = ({
   onUpdateModel,
   onReorderModels,
   onRefresh,
+  onBulkDelete,
   title,
 }) => {
   const isEmbeddingModel = !!(models.length > 0 && models[0].isEmbeddingModel);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+
+  const modelKeys = useMemo(() => models.map((m) => getModelKeyFromModel(m)), [models]);
+
+  useEffect(() => {
+    setSelectedKeys((prev) => {
+      const keySet = new Set(modelKeys);
+      const filtered = Array.from(prev).filter((k) => keySet.has(k));
+      if (filtered.length === prev.size) return prev;
+      return new Set(filtered);
+    });
+  }, [modelKeys]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -393,50 +466,6 @@ export const ModelTable: React.FC<ModelTableProps> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Find the index of the first non-core model
-  const firstDraggableIndex = models.findIndex((model) => !model.core);
-
-  // Create unified modifier logic
-  const createDragModifier = (isMobile: boolean) => (args: any) => {
-    const { transform, active, activeNodeRect, over } = args;
-    if (!active || !activeNodeRect) return transform;
-
-    // Get the index of current dragging item
-    const currentIndex = models.findIndex((model) => getModelKeyFromModel(model) === active.id);
-
-    // Calculate the number of non-core items
-    const draggableItemsCount = models.filter((model) => !model.core).length;
-
-    // Calculate row height
-    const rowHeight = activeNodeRect.height;
-
-    // Calculate draggable range
-    const minY = (firstDraggableIndex - currentIndex) * rowHeight;
-    const maxY = (firstDraggableIndex + draggableItemsCount - 1 - currentIndex) * rowHeight;
-
-    // For mobile view, check if hovering over a core model
-    if (isMobile && over) {
-      const overIndex = models.findIndex((model) => getModelKeyFromModel(model) === over.id);
-      const overModel = models[overIndex];
-
-      // If hovering over a core model, return to original position
-      if (overModel.core || overIndex < firstDraggableIndex) {
-        return {
-          ...transform,
-          x: 0,
-          y: 0,
-        };
-      }
-    }
-
-    // Restrict within draggable range
-    return {
-      ...transform,
-      x: 0,
-      y: Math.min(Math.max(minY, transform.y), maxY),
-    };
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -444,32 +473,48 @@ export const ModelTable: React.FC<ModelTableProps> = ({
       const oldIndex = models.findIndex((model) => getModelKeyFromModel(model) === active.id);
       const newIndex = models.findIndex((model) => getModelKeyFromModel(model) === over.id);
 
-      // Get target model
-      const targetModel = models[newIndex];
-
-      // 1. Prevent moving to core model positions
-      if (newIndex < firstDraggableIndex) {
-        return;
-      }
-
-      // 2. Prevent moving to other non-draggable model positions
-      if (targetModel.core) {
-        return;
-      }
+      if (oldIndex < 0 || newIndex < 0) return;
 
       const newModels = arrayMove(models, oldIndex, newIndex);
       onReorderModels?.(newModels);
     }
   };
 
-  // Mobile view rendering
+  const handleToggleSelect = useCallback((modelKey: string) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(modelKey)) {
+        next.delete(modelKey);
+      } else {
+        next.add(modelKey);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedKeys((prev) => {
+      const allSelected = modelKeys.length > 0 && modelKeys.every((k: string) => prev.has(k));
+      if (allSelected) return new Set<string>();
+      return new Set(modelKeys);
+    });
+  }, [modelKeys]);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedKeys.size > 0 && onBulkDelete) {
+      onBulkDelete(Array.from(selectedKeys));
+      setSelectedKeys(new Set());
+    }
+  }, [selectedKeys, onBulkDelete]);
+
+  const allSelected = modelKeys.length > 0 && modelKeys.every((k: string) => selectedKeys.has(k));
+
   const renderMobileView = () => (
     <div className="tw-relative md:tw-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
-        modifiers={[createDragModifier(true)]}
         autoScroll={{
           enabled: true,
           acceleration: 10,
@@ -479,23 +524,25 @@ export const ModelTable: React.FC<ModelTableProps> = ({
           },
         }}
       >
-        <SortableContext
-          items={models.map((model) => getModelKeyFromModel(model))}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={modelKeys} strategy={verticalListSortingStrategy}>
           <div className="tw-relative tw-touch-auto tw-space-y-2 tw-overflow-auto tw-pb-2">
-            {models.map((model) => (
-              <ModelCard
-                key={getModelKeyFromModel(model)}
-                id={getModelKeyFromModel(model)}
-                containerRef={containerRef}
-                model={model}
-                onEdit={onEdit}
-                onCopy={onCopy}
-                onDelete={onDelete}
-                onUpdateModel={onUpdateModel}
-              />
-            ))}
+            {models.map((model) => {
+              const key = getModelKeyFromModel(model);
+              return (
+                <ModelCard
+                  key={key}
+                  id={key}
+                  containerRef={containerRef}
+                  model={model}
+                  onEdit={onEdit}
+                  onCopy={onCopy}
+                  onDelete={onDelete}
+                  onUpdateModel={onUpdateModel}
+                  isSelected={selectedKeys.has(key)}
+                  onToggleSelect={() => handleToggleSelect(key)}
+                />
+              );
+            })}
           </div>
         </SortableContext>
       </DndContext>
@@ -504,19 +551,23 @@ export const ModelTable: React.FC<ModelTableProps> = ({
 
   return (
     <div ref={containerRef} className="tw-mb-4">
-      <ModelTableHeader title={title} onRefresh={onRefresh} onAdd={onAdd} />
-      {/* Desktop view */}
+      <ModelTableHeader
+        title={title}
+        onRefresh={onRefresh}
+        onAdd={onAdd}
+        selectedCount={selectedKeys.size}
+        onDeleteSelected={onBulkDelete ? handleDeleteSelected : undefined}
+        onSelectAll={handleSelectAll}
+        allSelected={allSelected}
+        isEmbeddingModel={isEmbeddingModel}
+      />
       <div className="tw-hidden md:tw-block">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[createDragModifier(false)]}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="tw-relative tw-overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="tw-w-6 tw-px-2"></TableHead>
                   <TableHead className="tw-w-6 tw-px-2"></TableHead>
                   <TableHead className="tw-pl-0">Model</TableHead>
                   <TableHead>Provider</TableHead>
@@ -527,22 +578,24 @@ export const ModelTable: React.FC<ModelTableProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody className="tw-relative">
-                <SortableContext
-                  items={models.map((model) => getModelKeyFromModel(model))}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {models.map((model) => (
-                    <DesktopSortableTableRow
-                      key={getModelKeyFromModel(model)}
-                      containerRef={containerRef}
-                      model={model}
-                      onEdit={onEdit}
-                      onCopy={onCopy}
-                      onDelete={onDelete}
-                      onUpdateModel={onUpdateModel}
-                      isEmbeddingModel={isEmbeddingModel}
-                    />
-                  ))}
+                <SortableContext items={modelKeys} strategy={verticalListSortingStrategy}>
+                  {models.map((model) => {
+                    const key = getModelKeyFromModel(model);
+                    return (
+                      <DesktopSortableTableRow
+                        key={key}
+                        containerRef={containerRef}
+                        model={model}
+                        onEdit={onEdit}
+                        onCopy={onCopy}
+                        onDelete={onDelete}
+                        onUpdateModel={onUpdateModel}
+                        isEmbeddingModel={isEmbeddingModel}
+                        isSelected={selectedKeys.has(key)}
+                        onToggleSelect={() => handleToggleSelect(key)}
+                      />
+                    );
+                  })}
                 </SortableContext>
               </TableBody>
             </Table>
@@ -550,7 +603,6 @@ export const ModelTable: React.FC<ModelTableProps> = ({
         </DndContext>
       </div>
 
-      {/* Mobile view */}
       {renderMobileView()}
     </div>
   );

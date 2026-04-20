@@ -6,15 +6,16 @@ import { useLatestVersion } from "@/hooks/useLatestVersion";
 import CopilotPlugin from "@/main";
 import { resetSettings } from "@/settings/model";
 import { CommandSettings } from "@/settings/v2/components/CommandSettings";
-import { Blocks, Cog, Command, Cpu, Database, Wrench } from "lucide-react";
+import { Blocks, Brain, Cog, Command, Cpu, Database, Wrench } from "lucide-react";
 import React from "react";
 import { AdvancedSettings } from "./components/AdvancedSettings";
 import { BasicSettings } from "./components/BasicSettings";
+import { CopilotPlusSettings } from "./components/CopilotPlusSettings";
 import { LocalToolsSettings } from "./components/LocalToolsSettings";
 import { ModelSettings } from "./components/ModelSettings";
 import { QASettings } from "./components/QASettings";
 
-const TAB_IDS = ["basic", "model", "QA", "command", "localTools", "advanced"] as const;
+const TAB_IDS = ["basic", "model", "QA", "command", "agent", "localTools", "advanced"] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 // tab icons
@@ -23,6 +24,7 @@ const icons: Record<TabId, JSX.Element> = {
   model: <Cpu className="tw-size-5" />,
   QA: <Database className="tw-size-5" />,
   command: <Command className="tw-size-5" />,
+  agent: <Brain className="tw-size-5" />,
   localTools: <Blocks className="tw-size-5" />,
   advanced: <Wrench className="tw-size-5" />,
 };
@@ -33,15 +35,26 @@ const components: Record<TabId, React.FC> = {
   model: () => <ModelSettings />,
   QA: () => <QASettings />,
   command: () => <CommandSettings />,
+  agent: () => <CopilotPlusSettings />,
   localTools: () => <LocalToolsSettings />,
   advanced: () => <AdvancedSettings />,
+};
+
+const tabLabels: Record<TabId, string> = {
+  basic: "Basic",
+  model: "Model",
+  QA: "QA",
+  command: "Command",
+  agent: "Agent",
+  localTools: "Local Tools",
+  advanced: "Advanced",
 };
 
 // tabs
 const tabs: TabItemType[] = TAB_IDS.map((id) => ({
   id,
   icon: icons[id],
-  label: id === "localTools" ? "Local Tools" : id.charAt(0).toUpperCase() + id.slice(1),
+  label: tabLabels[id],
 }));
 
 const SettingsContent: React.FC = () => {

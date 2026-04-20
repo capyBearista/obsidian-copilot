@@ -104,6 +104,34 @@ export const ModelSettings: React.FC = () => {
     updateSetting("activeEmbeddingModels", updatedModels);
   };
 
+  const onBulkDeleteModels = (modelKeys: string[]) => {
+    const keySet = new Set(modelKeys.map((k) => k.split("|").join("|")));
+    const updatedActiveModels = settings.activeModels.filter(
+      (model) => !keySet.has(`${model.name}|${model.provider}`)
+    );
+
+    let newDefaultModelKey = settings.defaultModelKey;
+    if (keySet.has(settings.defaultModelKey)) {
+      const newDefaultModel = updatedActiveModels.find((model) => model.enabled);
+      newDefaultModelKey = newDefaultModel
+        ? `${newDefaultModel.name}|${newDefaultModel.provider}`
+        : "";
+    }
+
+    setSettings({
+      activeModels: updatedActiveModels,
+      defaultModelKey: newDefaultModelKey,
+    });
+  };
+
+  const onBulkDeleteEmbeddingModels = (modelKeys: string[]) => {
+    const keySet = new Set(modelKeys);
+    const updatedModels = settings.activeEmbeddingModels.filter(
+      (model) => !keySet.has(`${model.name}|${model.provider}`)
+    );
+    updateSetting("activeEmbeddingModels", updatedModels);
+  };
+
   const handleEmbeddingModelUpdate = (updatedModel: CustomModel) => {
     const updatedModels = settings.activeEmbeddingModels.map((m) =>
       m.name === updatedModel.name && m.provider === updatedModel.provider ? updatedModel : m
@@ -152,6 +180,7 @@ export const ModelSettings: React.FC = () => {
           onUpdateModel={handleTableUpdate}
           onReorderModels={(newModels) => handleModelReorder(newModels)}
           onRefresh={handleRefreshChatModels}
+          onBulkDelete={onBulkDeleteModels}
           title="Chat Models"
         />
 
@@ -202,6 +231,7 @@ export const ModelSettings: React.FC = () => {
           onUpdateModel={handleEmbeddingModelUpdate}
           onReorderModels={(newModels) => handleModelReorder(newModels, true)}
           onRefresh={handleRefreshEmbeddingModels}
+          onBulkDelete={onBulkDeleteEmbeddingModels}
           title="Embedding Models"
         />
 

@@ -1,5 +1,5 @@
 import { TEXT_WEIGHT } from "@/constants";
-import { logInfo } from "@/logger";
+import { logError, logInfo } from "@/logger";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
 import { RetrieverFactory } from "@/search/RetrieverFactory";
 import { getSettings } from "@/settings/model";
@@ -10,6 +10,9 @@ import { TieredLexicalRetriever } from "@/search/v3/TieredLexicalRetriever";
 import { FilterRetriever } from "@/search/v3/FilterRetriever";
 import { RETURN_ALL_LIMIT } from "@/search/v3/SearchCore";
 import { mergeFilterAndSearchResults } from "@/search/v3/mergeResults";
+import { getWebSearchProvider } from "./webSearch/providers";
+import { getStandaloneQuestion } from "@/chainUtils";
+import { getWebSearchCitationInstructions } from "@/LLMProviders/chainRunner/utils/citationUtils";
 
 /**
  * Query expansion data returned with search results.
@@ -249,7 +252,9 @@ async function performLexicalSearch({
   return { type: "local_search", documents: allDocs, queryExpansion };
 }
 
-// Local search tool using RetrieverFactory (handles Self-hosted > Semantic > Lexical priority)
+/**
+ * Local search tool using RetrieverFactory (Self-hosted > Semantic > Lexical priority).
+ */
 const lexicalSearchTool = createLangChainTool({
   name: "lexicalSearch",
   description: "Search for notes using lexical/keyword-based search",
@@ -264,7 +269,9 @@ const lexicalSearchTool = createLangChainTool({
   },
 });
 
-// Semantic search tool using Orama-based HybridRetriever
+/**
+ * Semantic search tool using Orama-based HybridRetriever.
+ */
 const semanticSearchTool = createLangChainTool({
   name: "semanticSearch",
   description: "Search for notes using semantic/meaning-based search with embeddings",
@@ -443,7 +450,9 @@ async function performMiyoSearch({
   return { type: "local_search", documents: allDocs };
 }
 
-// Smart wrapper that uses RetrieverFactory for unified retriever selection
+/**
+ * Unified local search tool that selects retriever strategy at runtime.
+ */
 const localSearchTool = createLangChainTool({
   name: "localSearch",
   description:
@@ -493,7 +502,9 @@ const localSearchTool = createLangChainTool({
   },
 });
 
-// Note: indexTool behavior depends on which retriever is active
+/**
+ * Rebuild or refresh index depending on active retriever mode.
+ */
 const indexTool = createLangChainTool({
   name: "indexVault",
   description: "Index the vault to the Copilot index",
@@ -534,7 +545,9 @@ const indexTool = createLangChainTool({
   },
 });
 
-// Define Zod schema for webSearch
+/**
+ * Zod schema for webSearch tool.
+ */
 const webSearchSchema = z.object({
   query: z.string().min(1).describe("The search query to search the internet"),
   chatHistory: z
@@ -544,21 +557,53 @@ const webSearchSchema = z.object({
         content: z.string(),
       })
     )
+    .optional()
     .describe("Previous conversation turns for context (usually empty array)"),
 });
 
-// Add new web search tool
+/**
+ * Web search tool that routes through configured BYOK provider.
+ */
 const webSearchTool = createLangChainTool({
   name: "webSearch",
   description:
     "Search the INTERNET (NOT vault notes) when user explicitly asks for web/online information",
   schema: webSearchSchema,
   func: async ({ query, chatHistory }) => {
-    return {
-      error:
-        "Web Search is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.",
-    };
+    try {
+      const standaloneQuestion = await getStandaloneQuestion(query, chatHistory ?? []);
+      const provider = getWebSearchProvider();
+      const result = await provider.search(standaloneQuestion);
+
+      const formattedResults = [
+        {
+          type: "web_search",
+          content: result.content,
+          citations: result.citations,
+          instruction: getWebSearchCitationInstructions(),
+        },
+      ];
+
+      return formattedResults;
+    } catch (error) {
+      logError("Error processing web search query", {
+        queryLength: query.length,
+        error,
+      });
+      return {
+        error:
+          "Web search failed. Check your Local Tools provider configuration and API credentials, then try again.",
+      };
+    }
   },
 });
 
-export { indexTool, lexicalSearchTool, localSearchTool, semanticSearchTool, webSearchTool };
+export {
+  indexTool,
+  lexicalSearchTool,
+  localSearchTool,
+  semanticSearchTool,
+  webSearchTool,
+  localSearchSchema,
+  webSearchSchema,
+};

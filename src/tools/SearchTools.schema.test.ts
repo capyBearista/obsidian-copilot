@@ -1,3 +1,4 @@
+import { indexTool, localSearchSchema, webSearchSchema } from "@/tools/SearchTools";
 import { z } from "zod";
 
 /**
@@ -8,19 +9,6 @@ import { z } from "zod";
 
 describe("SearchTools Schema Validation", () => {
   describe("localSearchTool schema", () => {
-    // Define the expected schema based on handler requirements
-    const localSearchSchema = z.object({
-      query: z.string().min(1).describe("The search query"),
-      salientTerms: z.array(z.string()).describe("List of salient terms extracted from the query"),
-      timeRange: z
-        .object({
-          startTime: z.any(), // TimeInfo type
-          endTime: z.any(), // TimeInfo type
-        })
-        .optional()
-        .describe("Time range for search"),
-    });
-
     test("validates correct input structure", () => {
       const validInput = {
         query: "test query",
@@ -46,22 +34,8 @@ describe("SearchTools Schema Validation", () => {
         query: "meetings last week",
         salientTerms: ["meetings"],
         timeRange: {
-          startTime: {
-            epoch: 1234567890000,
-            isoString: "2009-02-13T23:31:30.000Z",
-            userLocaleString: "2/13/2009, 11:31:30 PM",
-            localDateString: "2009-02-13",
-            timezoneOffset: 0,
-            timezone: "UTC",
-          },
-          endTime: {
-            epoch: 1234567900000,
-            isoString: "2009-02-13T23:31:40.000Z",
-            userLocaleString: "2/13/2009, 11:31:40 PM",
-            localDateString: "2009-02-13",
-            timezoneOffset: 0,
-            timezone: "UTC",
-          },
+          startTime: 1234567890000,
+          endTime: 1234567900000,
         },
       };
 
@@ -110,19 +84,6 @@ describe("SearchTools Schema Validation", () => {
   });
 
   describe("webSearchTool schema", () => {
-    // This should match ChatHistoryEntry interface
-    const webSearchSchema = z.object({
-      query: z.string().min(1).describe("The search query"),
-      chatHistory: z
-        .array(
-          z.object({
-            role: z.enum(["user", "assistant"]),
-            content: z.string(),
-          })
-        )
-        .describe("Previous conversation turns"),
-    });
-
     test("validates correct input with proper chatHistory", () => {
       const validInput = {
         query: "search for TypeScript tutorials",
@@ -201,19 +162,26 @@ describe("SearchTools Schema Validation", () => {
       // But our proper schema should reject it
       expect(webSearchSchema.safeParse(malformedInput).success).toBe(false);
     });
+
+    test("accepts optional chatHistory field", () => {
+      const result = webSearchSchema.safeParse({
+        query: "search query",
+      });
+      expect(result.success).toBe(true);
+    });
   });
 
   describe("indexTool schema", () => {
-    const indexSchema = z.void();
+    const indexSchema = (indexTool as unknown as { schema: z.ZodType }).schema;
 
     test("accepts undefined", () => {
       const result = indexSchema.safeParse(undefined);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
-    test("rejects any parameters", () => {
+    test("accepts parameter objects for open index schema", () => {
       const result = indexSchema.safeParse({ someParam: "value" });
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
 
     test("rejects string input", () => {
@@ -222,40 +190,27 @@ describe("SearchTools Schema Validation", () => {
     });
 
     test("handles empty object with SimpleTool fix", () => {
-      // This tests the SimpleTool fix for empty objects on void schemas
-      // The fix converts {} to undefined before validation
+      // The tool uses z.object({}) and accepts empty object payloads.
       const emptyObj = {};
 
-      // Direct parse would fail
+      // Direct parse succeeds
       const directResult = indexSchema.safeParse(emptyObj);
-      expect(directResult.success).toBe(false);
-
-      // But with the SimpleTool fix (simulated here), it should work
-      const fixedInput = Object.keys(emptyObj).length === 0 ? undefined : emptyObj;
-      const fixedResult = indexSchema.safeParse(fixedInput);
-      expect(fixedResult.success).toBe(true);
+      expect(directResult.success).toBe(true);
     });
   });
 
   describe("Schema type inference", () => {
     test("localSearch schema infers correct types", () => {
-      const localSchema = z.object({
-        query: z.string().min(1),
-        salientTerms: z.array(z.string()),
-        timeRange: z
-          .object({
-            startTime: z.any(),
-            endTime: z.any(),
-          })
-          .optional(),
-      });
-
-      type InferredType = z.infer<typeof localSchema>;
+      type InferredType = z.infer<typeof localSearchSchema>;
 
       // This is a compile-time test - if it compiles, types are correct
       const testValue: InferredType = {
         query: "test",
         salientTerms: ["test"],
+        timeRange: {
+          startTime: 123,
+          endTime: 456,
+        },
         // timeRange is optional
       };
 
@@ -266,10 +221,10 @@ describe("SearchTools Schema Validation", () => {
 
       expect(query).toBe("test");
       expect(terms).toEqual(["test"]);
-      expect(timeRange).toBeUndefined();
+      expect(timeRange).toEqual({ startTime: 123, endTime: 456 });
 
       // Also validate the schema works
-      expect(localSchema.safeParse(testValue).success).toBe(true);
+      expect(localSearchSchema.safeParse(testValue).success).toBe(true);
     });
 
     test("webSearch schema matches ChatHistoryEntry interface", () => {
@@ -279,30 +234,20 @@ describe("SearchTools Schema Validation", () => {
         content: string;
       }
 
-      const webSchema = z.object({
-        query: z.string().min(1),
-        chatHistory: z.array(
-          z.object({
-            role: z.enum(["user", "assistant"]),
-            content: z.string(),
-          })
-        ),
-      });
-
-      type InferredType = z.infer<typeof webSchema>;
+      type InferredType = z.infer<typeof webSearchSchema>;
 
       // This ensures the inferred type matches ChatHistoryEntry[]
       const testValue: InferredType = {
         query: "test",
-        chatHistory: [] as ChatHistoryEntry[],
+        chatHistory: [] as ChatHistoryEntry[] | undefined,
       };
 
       // Should be assignable to ChatHistoryEntry[]
-      const history: ChatHistoryEntry[] = testValue.chatHistory;
+      const history: ChatHistoryEntry[] = testValue.chatHistory ?? [];
       expect(history).toEqual([]);
 
       // Also validate the schema works
-      expect(webSchema.safeParse(testValue).success).toBe(true);
+      expect(webSearchSchema.safeParse(testValue).success).toBe(true);
     });
   });
 });
