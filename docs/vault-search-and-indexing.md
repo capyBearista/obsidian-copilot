@@ -23,7 +23,7 @@ Lexical search finds notes that contain the exact words you used. It's fast, req
 
 Semantic search finds notes that are conceptually related, even if they don't share exact words.
 
-- **Used in**: Vault QA and Copilot Plus modes — but **disabled by default**. You must explicitly enable it.
+- **Used in**: Vault QA and Agent modes — but **disabled by default**. You must explicitly enable it.
 - **How it works**: Converts your notes into numerical vectors (using an embedding model), then finds notes whose vectors are closest to your query
 - **Strengths**: Finds notes by concept and meaning, great for "fuzzy" recall
 - **Cost**: Requires embedding API calls (costs money for paid embedding models)
@@ -43,7 +43,7 @@ Controls when Copilot automatically updates the index:
 |---|---|
 | **NEVER** | Manual only — you must trigger indexing yourself |
 | **ON STARTUP** | Updates when Obsidian starts or the plugin reloads |
-| **ON MODE SWITCH** | Updates when you switch to Vault QA or Copilot Plus mode (Recommended) |
+| **ON MODE SWITCH** | Updates when you switch to Vault QA or Agent mode (Recommended) |
 
 The default is **ON MODE SWITCH**.
 
@@ -178,4 +178,4 @@ On mobile, you can still use Vault QA with lexical search, but semantic search w
 
 - [Agent Mode and Tools](agent-mode-and-tools.md) — How @vault uses the index in Plus mode
 - [Models and Parameters](models-and-parameters.md) — Choosing an embedding model
-- [Copilot Plus and Self-Host](copilot-plus-and-self-host.md) — Miyo-powered local semantic search
+

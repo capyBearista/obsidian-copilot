@@ -1,7 +1,3 @@
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
-import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
-import { isSelfHostModeValid } from "@/plusUtils";
-import { getSettings } from "@/settings/model";
 import { extractAllYoutubeUrls } from "@/utils";
 import { z } from "zod";
 import { createLangChainTool } from "./createLangChainTool";
@@ -55,36 +51,12 @@ const youtubeTranscriptionTool = createLangChainTool({
     // Process multiple URLs if present
     const results = await Promise.all(
       urls.map(async (url) => {
-        try {
-          const response =
-            isSelfHostModeValid() && getSettings().supadataApiKey
-              ? await selfHostYoutube4llm(url)
-              : await BrevilabsClient.getInstance().youtube4llm(url);
-
-          // Check if transcript is empty
-          if (!response.response.transcript) {
-            return {
-              url,
-              success: false,
-              message:
-                "Transcript not available. Only English videos with auto transcript enabled are supported",
-            };
-          }
-
-          return {
-            url,
-            success: true,
-            transcript: response.response.transcript,
-            elapsed_time_ms: response.elapsed_time_ms,
-          };
-        } catch (error) {
-          console.error(`Error transcribing YouTube video ${url}:`, error);
-          return {
-            url,
-            success: false,
-            message: "An error occurred while transcribing the YouTube video",
-          };
-        }
+        return {
+          url,
+          success: false,
+          message:
+            "YouTube parsing is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.",
+        };
       })
     );
 

@@ -12,74 +12,7 @@ Copilot comes with a set of built-in models across many providers. Some are alwa
 
 | Model | Provider | Capabilities |
 |---|---|---|
-| copilot-plus-flash | Copilot Plus | Vision (Plus exclusive) |
-| google/gemini-2.5-flash | OpenRouter | Vision |
-| google/gemini-2.5-pro | OpenRouter | Vision |
-| google/gemini-3-flash-preview | OpenRouter | Vision, Reasoning |
-| google/gemini-3.1-pro-preview | OpenRouter | Vision, Reasoning |
-| openai/gpt-5.4 | OpenRouter | Vision |
-| openai/gpt-5-mini | OpenRouter | Vision |
-| gpt-5.4 | OpenAI | Vision |
-| gpt-5-mini | OpenAI | Vision |
-| gpt-4.1 | OpenAI | Vision |
-| gpt-4.1-mini | OpenAI | Vision |
-| claude-opus-4-6 | Anthropic | Vision, Reasoning |
-| claude-sonnet-4-5-20250929 | Anthropic | Vision, Reasoning |
-| gemini-2.5-pro | Google | Vision |
-| gemini-2.5-flash | Google | Vision |
-| gemini-3-flash-preview | Google | Vision, Reasoning |
-| grok-4-1-fast | XAI | Vision |
-| deepseek-chat | DeepSeek | — |
-| deepseek-reasoner | DeepSeek | Reasoning |
 
-### Model Capability Badges
-
-Models may show capability badges:
-
-- **Reasoning** — Extended internal thinking before responding; better for complex tasks
-- **Vision** — Can process images (e.g., screenshots, diagrams embedded in notes)
-- **Web Search** — Can access the internet directly (model-native feature)
-
-### Managing Models
-
-Go to **Settings → Copilot → Model** to see the full model list.
-
-- **Enable/disable** — Toggle individual models on or off to control what appears in the model selector
-- **Reorder** — Drag models to change their order in the dropdown
-- **Delete** — Remove custom models you've added
-
-### Adding Custom Models
-
-If your provider offers a model that isn't in the built-in list, you can add it manually:
-
-1. Go to **Settings → Copilot → Model**
-2. Click **Add Model**
-3. Enter the model name exactly as the provider expects it (e.g., `gpt-4-turbo-preview`)
-4. Select the provider
-5. Optionally set a custom base URL (useful for proxies or alternate endpoints)
-6. Save
-
-### Importing Models from Provider
-
-You can automatically import the full list of available models from a provider:
-
-1. Go to **Settings → Copilot → Model**
-2. Find the **Import models** button for your provider
-3. Copilot will fetch the provider's model list and add new ones
-
----
-
-## Embedding Models
-
-Embedding models convert text into numerical vectors, which powers semantic (meaning-based) search in Vault QA and the "Relevant Notes" feature.
-
-### Built-In Embedding Models
-
-| Model | Provider |
-|---|---|
-| copilot-plus-small | Copilot Plus (Plus exclusive) |
-| copilot-plus-large | Copilot Plus (Believer exclusive) |
-| copilot-plus-multilingual | Copilot Plus (Plus exclusive) |
 | openai/text-embedding-3-small | OpenRouter |
 | text-embedding-3-small | OpenAI |
 | text-embedding-3-large | OpenAI |

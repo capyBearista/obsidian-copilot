@@ -5,15 +5,14 @@ The Ultimate AI Assistant for Your Second Brain
 </h2>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/logancyang/obsidian-copilot?style=for-the-badge&sort=semver" alt="GitHub release (latest SemVer)">
+  <img src="https://img.shields.io/github/v/release/capybearista/obisidian-copilot?style=for-the-badge&sort=semver" alt="GitHub release (latest SemVer)">
   <img src="https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22copilot%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json&style=for-the-badge" alt="Obsidian Downloads">
 </p>
 
 <p align="center">
-  <a href="https://www.obsidiancopilot.com/en/docs">Documentation</a> |
-  <a href="https://www.youtube.com/@loganhallucinates">Youtube</a> |
-  <a href="https://github.com/logancyang/obsidian-copilot/issues/new?template=bug_report.md">Report Bug</a> |
-  <a href="https://github.com/logancyang/obsidian-copilot/issues/new?template=feature_request.md">Request Feature</a>
+  <a href="https://github.com/capybearista/obisidian-copilot">Documentation</a> |
+  <a href="https://github.com/capybearista/obisidian-copilot/issues/new?template=bug_report.md">Report Bug</a> |
+  <a href="https://github.com/capybearista/obisidian-copilot/issues/new?template=feature_request.md">Request Feature</a>
 </p>
 
 <p align="center">
@@ -42,7 +41,7 @@ This is the future we believe in. If you share this vision, please support this 
 - **🔍 Smart Vault Search**: Search your vault with chat, no setup required. Embeddings are optional. Copilot delivers results right away.
 - **✍️ Composer and Quick Commands**: Interact with your writing with chat, apply changes with 1 click.
 - **🗂️ Project Mode**: Create AI-ready context based on folders and tags. Think NotebookLM but inside your vault!
-- **🤖 Agent Mode (Plus)**: Unlock an autonomous agent with built-in tool calling. No commands needed. Copilot automatically triggers vault, web searches or any other relevant tool when relevant.
+- **🤖 Agent Mode**: Unlock an autonomous agent with built-in tool calling. No commands needed. Copilot automatically triggers vault searches or any other relevant tool when needed.
 
 <p align="center">
   <em>Copilot's Agent can call the proper tools on its own upon your request.</em>
@@ -68,9 +67,9 @@ After months of hard work, we have revamped the codebase and adopted a new parad
 
 - FOR ALL USERS: You can do vault search out-of-the-box **without building an index first** (Indexing is still available but optional behind the "Semantic Search" toggle in QA settings).
 - FOR FREE USERS: Image support and chat context menu are available to all users starting from v3.0.0!
-- FOR PLUS USERS: **Autonomous agent** is available with vault search, web search, youtube, composer and soon a lot other tools! **Long-term memory** is also a tool the agent can use by itself starting from 3.1.0!
+- FOR ALL USERS: **Autonomous agent** is available with vault search and composer tools. (Note: Web Search, YouTube, and PDF parsing are temporarily disabled in this free fork until local BYOK tool-use integrations are finalized).
 
-Read the [Changelog](https://github.com/logancyang/obsidian-copilot/releases/tag/3.0.0).
+Read the [Changelog](https://github.com/capybearista/obisidian-copilot/releases/tag/3.0.0).
 
 ## Why People Love It ❤️
 
@@ -94,10 +93,7 @@ Read the [Changelog](https://github.com/logancyang/obsidian-copilot/releases/tag
 1. Go to **Obsidian → Settings → Copilot → Basic** and click **Set Keys**.
 2. Choose your AI provider(s) (e.g., **OpenRouter, Gemini, OpenAI, Anthropic, Cohere**) and paste your API key(s). **OpenRouter is recommended.**
 
-**Copilot Plus/Believer**
 
-1. Copy your license key at your [dashboard](https://www.obsidiancopilot.com/en/dashboard). _Don’t forget to join our wonderful Discord community!_
-2. Go to **Obsidian → Settings → Copilot → Basic** and paste the key into in the **Copilot Plus** card.
 
 ## Usage
 
@@ -213,9 +209,9 @@ Use it to quickly reference past research, ideas, or decisions—no need to sear
     <img src="./images/Relevant-Notes.png" alt="Relevant Notes" width="700">
 </p>
 
-### Copilot Plus/Believer
+### Agentic Capabilities (Now Free for Everyone)
 
-Copilot Plus brings powerful AI agentic capabilities, context-aware actions and seamless tool integration—built to elevate your knowledge work in Obsidian.
+This free fork unlocks powerful AI agentic capabilities, context-aware actions, and seamless tool integration for all users—no subscription required.
 
 #### **Get Precision Insights From a Specific Time Window**
 
@@ -269,18 +265,18 @@ In agent mode, ask Copilot
 - Watch [Youtube](https://www.youtube.com/@loganhallucinates) for walkthroughs.
 - If you're experiencing a bug or have a feature idea, please follow the steps below to help us help you faster:
   - 🐛 Bug Report Checklist
-    - ☑️Use the [bug report template](https://github.com/logancyang/obsidian-copilot/issues/new?template=bug_report.md) when reporting an issue
+    - ☑️Use the [bug report template](https://github.com/capybearista/obisidian-copilot/issues/new?template=bug_report.md) when reporting an issue
     - ☑️Enable Debug Mode in Copilot Settings → Advanced for more detailed logs
     - ☑️Open the dev console to collect error messages:
       - Mac: Cmd + Option + I
       - Windows: Ctrl + Shift + I
     - ☑️Turn off all other plugins, keeping only Copilot enabled
     - ☑️Attach relevant console logs to your report
-    - ☑️Submit your bug report [here](https://github.com/logancyang/obsidian-copilot/issues/new?template=bug_report.md)
+    - ☑️Submit your bug report [here](https://github.com/capybearista/obisidian-copilot/issues/new?template=bug_report.md)
   - 💡 Feature Request Checklist
-    - ☑️Use the [feature request template](https://github.com/logancyang/obsidian-copilot/issues/new?template=feature_request.md) for requesting a new feature
+    - ☑️Use the [feature request template](https://github.com/capybearista/obisidian-copilot/issues/new?template=feature_request.md) for requesting a new feature
     - ☑️Clearly describe the feature, why it matters, and how it would help
-    - ☑️Submit your feature request [here](https://github.com/logancyang/obsidian-copilot/issues/new?template=feature_request.md)
+    - ☑️Submit your feature request [here](https://github.com/capybearista/obisidian-copilot/issues/new?template=feature_request.md)
 
 ## **FAQ**
 
@@ -340,21 +336,14 @@ If you share the vision of building the most powerful AI agent for our second br
 
 Special thanks to our top sponsors: @mikelaaron, @pedramamini, @Arlorean, @dashinja, @azagore, @MTGMAD, @gpythomas, @emaynard, @scmarinelli, @borthwick, @adamhill, @gluecode, @rusi, @timgrote, @JiaruiYu-Consilium, @ddocta, @AMOz1, @chchwy, @pborenstein, @GitTom, @kazukgw, @mjluser1, @joesfer, @rwaal, @turnoutnow-harpreet, @dreznicek, @xrise-informatik, @jeremygentles, @ZhengRui, @bfoujols, @jsmith0475, @pagiaddlemon, @sebbyyyywebbyyy, @royschwartz2, @vikram11, @amiable-dev, @khalidhalim, @DrJsPBs, @chishaku, @Andrea18500, @shayonpal, @rhm2k, @snorcup, @JohnBub, @obstinatelark, @jonashaefele, @vishnu2kmohan
 
-## **Copilot Plus Disclosure**
+## **Fork Attribution & Scope**
 
-Copilot Plus is a premium product of Brevilabs LLC and it is not affiliated with Obsidian. It offers a powerful agentic AI integration into Obsidian. Please check out our website [obsidiancopilot.com](https://obsidiancopilot.com/) for more details!
+This is `obsidian-copilot-free`, a free fork of the original [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot) plugin. 
 
-- An account and payment are required for full access.
-- Copilot Plus requires network use to facilitate the AI agent.
-- **Privacy & Data Handling**:
-  - **Free tier**: Your messages and notes are sent only to your configured LLM provider (OpenAI, Anthropic, Google, etc.). Nothing goes to Brevilabs servers.
-  - **Plus tier**: Messages go to your configured LLM provider. File conversions (PDF, DOCX, EPUB, images, etc.) are processed by Brevilabs servers only when you explicitly trigger these features via `@` commands.
-  - **Processing vs. Retention**: We process your data to deliver the feature you requested, then discard it. No message content, file uploads, or documents are retained on our servers after processing.
-  - **User ID**: A randomly generated UUID is sent with Plus API requests for service delivery (license abuse prevention, rate limiting) but is not used for user tracking, profiling, or analytics.
-- Please see the privacy policy on the website for more details.
-- The frontend code of Copilot plugin is fully open-source. However, the backend code facilitating the AI agents is close-sourced and proprietary.
-- We offer a full refund if you are not satisfied with the product within 14 days of your purchase, no questions asked.
+**What is different in this fork:**
+- **No Paywalls**: All "Copilot Plus" and "Believer" subscription requirements have been completely removed. Features like Autonomous Agent and Document Processor are available to everyone.
+- **No Cloud Backend**: We have removed all proprietary cloud backend dependencies (`BrevilabsClient`). Your data never leaves your machine unless sent directly to your configured LLM provider.
+- **Disabled Features**: Features that previously relied on the paid proprietary backend (Web Search, YouTube transcripts, PDF Extraction via cloud) are temporarily disabled. We plan to replace them with local, Bring-Your-Own-Key (BYOK) alternatives in the future.
+- **Memory System**: The long-term memory system is currently disabled until a non-paywalled implementation is finalized.
 
-## **Authors**
-
-Brevilabs Team | Email: logan@brevilabs.com | X/Twitter: [@logancyang](https://twitter.com/logancyang)
+Original Authors: Brevilabs Team | X/Twitter: [@logancyang](https://twitter.com/logancyang)

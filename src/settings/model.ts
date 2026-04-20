@@ -379,6 +379,20 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
     sanitizedSettings.enableMiyo = legacyEnableMiyoSearch as boolean;
   }
 
+  // Migration: Remove legacy Copilot Plus models from default/embedding keys
+  if (
+    sanitizedSettings.defaultModelKey &&
+    sanitizedSettings.defaultModelKey.includes("copilot-plus")
+  ) {
+    sanitizedSettings.defaultModelKey = DEFAULT_SETTINGS.defaultModelKey;
+  }
+  if (
+    sanitizedSettings.embeddingModelKey &&
+    sanitizedSettings.embeddingModelKey.includes("copilot-plus")
+  ) {
+    sanitizedSettings.embeddingModelKey = DEFAULT_SETTINGS.embeddingModelKey;
+  }
+
   // Stuff in settings are string even when the interface has number type!
   const temperature = Number(settingsToSanitize.temperature);
   sanitizedSettings.temperature = isNaN(temperature) ? DEFAULT_SETTINGS.temperature : temperature;
@@ -631,37 +645,26 @@ function mergeActiveModels(
 ): CustomModel[] {
   const modelMap = new Map<string, CustomModel>();
 
-  // Add core models to the map first
-  builtInModels
-    .filter((model) => model.core)
-    .forEach((model) => {
-      modelMap.set(getModelKeyFromModel(model), { ...model });
-    });
-
   // Add or update existing models in the map
   existingActiveModels.forEach((model) => {
     const key = getModelKeyFromModel(model);
-    const existingModel = modelMap.get(key);
-    if (existingModel) {
-      // If it's a built-in model, preserve all built-in properties
-      const builtInModel = builtInModels.find(
-        (m) => m.name === model.name && m.provider === model.provider
-      );
-      if (builtInModel) {
-        modelMap.set(key, {
-          ...builtInModel,
-          ...model,
-          isBuiltIn: true,
-          believerExclusive: builtInModel.believerExclusive,
-        });
-      } else {
-        modelMap.set(key, {
-          ...model,
-          isBuiltIn: existingModel.isBuiltIn,
-        });
-      }
+    const builtInModel = builtInModels.find(
+      (m) => m.name === model.name && m.provider === model.provider
+    );
+
+    if (builtInModel) {
+      // If it's a built-in model, preserve all built-in properties but respect user's existing state
+      modelMap.set(key, {
+        ...builtInModel,
+        ...model,
+        isBuiltIn: true,
+        believerExclusive: builtInModel.believerExclusive,
+      });
     } else {
-      modelMap.set(key, model);
+      modelMap.set(key, {
+        ...model,
+        isBuiltIn: false,
+      });
     }
   });
 

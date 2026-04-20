@@ -220,6 +220,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   const onSendMessage = () => {
+    // Intercept PDF usage until local BYOK integration is finalized
+    const activeNoteIsPdf = includeActiveNote && currentActiveNote?.extension === "pdf";
+    const hasPdfContext = contextNotes.some((note) => note.extension === "pdf");
+
+    if (activeNoteIsPdf || hasPdfContext) {
+      new Notice(
+        "Remote document extraction is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.",
+        8000
+      );
+      return;
+    }
+
     // Handle edit mode
     if (editMode && onEditSave) {
       onEditSave(inputMessage, {

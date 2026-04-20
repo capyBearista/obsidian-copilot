@@ -1,14 +1,15 @@
 import { ImageProcessor } from "@/imageProcessing/imageProcessor";
-import {
-  BrevilabsClient,
-  Twitter4llmResponse,
-  Url4llmResponse,
-} from "@/LLMProviders/brevilabsClient";
-import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
-import { err2String, isTwitterUrl, isYoutubeUrl } from "@/utils";
+export interface UrlResponse {
+  response: string;
+  elapsed_time_ms: number;
+}
+
+export interface TwitterResponse {
+  response: string;
+  elapsed_time_ms: number;
+}
+import { isTwitterUrl, isYoutubeUrl } from "@/utils";
 import { logError } from "@/logger";
-import { isSelfHostModeValid } from "@/plusUtils";
-import { getSettings } from "@/settings/model";
 
 export interface MentionData {
   type: string;
@@ -20,11 +21,8 @@ export interface MentionData {
 export class Mention {
   private static instance: Mention;
   private mentions: Map<string, MentionData>;
-  private brevilabsClient: BrevilabsClient;
-
   private constructor() {
     this.mentions = new Map();
-    this.brevilabsClient = BrevilabsClient.getInstance();
   }
 
   static getInstance(): Mention {
@@ -49,38 +47,25 @@ export class Mention {
       .filter((url, index, self) => self.indexOf(url) === index);
   }
 
-  async processUrl(url: string): Promise<Url4llmResponse & { error?: string }> {
-    try {
-      return await this.brevilabsClient.url4llm(url);
-    } catch (error) {
-      const msg = err2String(error);
-      logError(`Error processing URL ${url}: ${msg}`);
-      return { response: url, elapsed_time_ms: 0, error: msg };
-    }
+  async processUrl(url: string): Promise<UrlResponse & { error?: string }> {
+    const msg =
+      "Web Search is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.";
+    logError(`Error processing URL ${url}: ${msg}`);
+    return { response: url, elapsed_time_ms: 0, error: msg };
   }
 
   async processYoutubeUrl(url: string): Promise<{ transcript: string; error?: string }> {
-    try {
-      const response =
-        isSelfHostModeValid() && getSettings().supadataApiKey
-          ? await selfHostYoutube4llm(url)
-          : await this.brevilabsClient.youtube4llm(url);
-      return { transcript: response.response.transcript };
-    } catch (error) {
-      const msg = err2String(error);
-      logError(`Error processing YouTube URL ${url}: ${msg}`);
-      return { transcript: "", error: msg };
-    }
+    const msg =
+      "YouTube transcription is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.";
+    logError(`Error processing YouTube URL ${url}: ${msg}`);
+    return { transcript: "", error: msg };
   }
 
-  async processTwitterUrl(url: string): Promise<Twitter4llmResponse & { error?: string }> {
-    try {
-      return await this.brevilabsClient.twitter4llm(url);
-    } catch (error) {
-      const msg = err2String(error);
-      logError(`Error processing Twitter URL ${url}: ${msg}`);
-      return { response: url, elapsed_time_ms: 0, error: msg };
-    }
+  async processTwitterUrl(url: string): Promise<TwitterResponse & { error?: string }> {
+    const msg =
+      "Twitter extraction is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.";
+    logError(`Error processing Twitter URL ${url}: ${msg}`);
+    return { response: url, elapsed_time_ms: 0, error: msg };
   }
 
   /**

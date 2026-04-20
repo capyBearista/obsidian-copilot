@@ -56,7 +56,7 @@ Use the **Default Mode** dropdown to set which mode opens by default:
 
 - **Chat** — General conversation, good for most tasks
 - **Vault QA** — Ask questions answered from your notes
-- **Copilot Plus** — Advanced mode with autonomous agent and tools (requires Copilot Plus license)
+- **Agent Mode** — Advanced mode with autonomous agent and tools (Now free for everyone)
 - **Projects** — Focused workspaces (alpha feature)
 
 Most users should start with **Chat** mode.

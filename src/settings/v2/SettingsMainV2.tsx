@@ -108,7 +108,7 @@ const SettingsMainV2: React.FC<SettingsMainV2Props> = ({ plugin }) => {
                   <>
                     {hasUpdate ? (
                       <a
-                        href="obsidian://show-plugin?id=copilot"
+                        href="obsidian://show-plugin?id=obsidian-copilot-free"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="tw-text-xs tw-text-accent hover:tw-underline"

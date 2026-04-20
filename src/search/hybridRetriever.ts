@@ -1,5 +1,4 @@
 // DEPRECATED: Legacy hybrid retriever backed by Orama. Replaced by v3 TieredLexicalRetriever + MemoryIndexManager.
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
 import EmbeddingManager from "@/LLMProviders/embeddingManager";
 import { logInfo } from "@/logger";
 import VectorStoreManager from "@/search/vectorStoreManager";
@@ -48,7 +47,7 @@ export class HybridRetriever extends BaseRetriever {
 
       const combinedChunks = this.filterAndFormatChunks(oramaChunks, explicitChunks);
 
-      let finalChunks = combinedChunks;
+      const finalChunks = combinedChunks;
 
       // Add check for empty array
       if (combinedChunks.length === 0) {
@@ -73,20 +72,7 @@ export class HybridRetriever extends BaseRetriever {
         (maxOramaScore < this.options.useRerankerThreshold || allScoresAreNaN);
       // Apply reranking if max score is below the threshold or all scores are NaN
       if (shouldRerank) {
-        const rerankResponse = await BrevilabsClient.getInstance().rerank(
-          query,
-          // Limit the context length to 3000 characters to avoid overflowing the reranker
-          combinedChunks.map((doc) => doc.pageContent.slice(0, 3000))
-        );
-
-        // Map chunks based on reranked scores and include rerank_score in metadata
-        finalChunks = rerankResponse.response.data.map((item) => ({
-          ...combinedChunks[item.index],
-          metadata: {
-            ...combinedChunks[item.index].metadata,
-            rerank_score: item.relevance_score,
-          },
-        }));
+        logInfo("Reranking is temporarily disabled in this free fork.");
       }
 
       if (getSettings().debug) {

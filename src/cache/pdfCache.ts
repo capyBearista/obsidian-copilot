@@ -1,4 +1,7 @@
-import { Pdf4llmResponse } from "@/LLMProviders/brevilabsClient";
+export interface Pdf4llmResponse {
+  response: string;
+  elapsed_time_ms: number;
+}
 import { logError, logInfo } from "@/logger";
 import { MD5 } from "crypto-js";
 import { TFile } from "obsidian";

@@ -1,8 +1,8 @@
 # Agent Mode and Tools
 
-Copilot Plus includes an **autonomous agent** that can reason step-by-step and decide which tools to use to answer your question. Instead of you specifying every step, the agent figures out what to do on its own.
+Agent Mode includes an **autonomous agent** that can reason step-by-step and decide which tools to use to answer your question. Instead of you specifying every step, the agent figures out what to do on its own.
 
-This feature requires a [Copilot Plus](copilot-plus-and-self-host.md) license.
+This feature is now free for all users in this fork.
 
 ---
 
@@ -24,7 +24,7 @@ When the autonomous agent is enabled, Copilot can:
 1. Go to **Settings → Copilot → Plus**
 2. Turn on **Enable Autonomous Agent**
 
-The agent activates automatically when you're in **Copilot Plus** mode. You don't need to do anything special — just ask your question.
+The agent activates automatically when you're in **Agent** mode. You don't need to do anything special — just ask your question.
 
 ### Max Iterations
 
@@ -40,7 +40,7 @@ The agent also has a maximum runtime of 5 minutes per response, regardless of it
 
 ## Available Tools
 
-Copilot Plus has 13 built-in tools. Some are always active; others can be enabled or disabled.
+Agent mode has several built-in tools. Some are always active; others can be enabled or disabled.
 
 ### Always-Enabled Tools
 
@@ -68,7 +68,7 @@ Browses the file structure of your vault. The agent uses this to find folder pat
 Lists all tags in your vault with usage statistics. Useful for tag reorganization or finding notes by tag patterns.
 
 #### Update Memory
-Saves information to your memory when you explicitly ask the AI to remember something. See [Copilot Plus and Self-Host](copilot-plus-and-self-host.md#memory-system) for details.
+Saves information to your memory when you explicitly ask the AI to remember something. Note: memory system is temporarily disabled in this fork.
 
 > **Requires**: **Settings → Copilot → Plus → Reference Saved Memories** must be enabled. If this setting is off, the tool is not registered and memory commands will not work.
 
@@ -91,7 +91,7 @@ Searches the internet for current information.
 #### Write to File
 Creates a new note or overwrites an existing one entirely.
 
-- **Trigger**: Automatically for "create a note" requests, or explicitly with `@composer` (available in both Copilot Plus and Projects mode)
+- **Trigger**: Automatically for "create a note" requests, or explicitly with `@composer` (available in both Agent and Projects mode)
 - **Behavior**: Shows a preview of the content before writing. You can review and accept or reject the change.
 - **Auto-accept**: Enable **Settings → Copilot → Plus → Auto-accept edits** to skip the preview
 
@@ -169,6 +169,6 @@ If you trust the agent and don't want to review every file change, enable **Auto
 
 ## Related
 
-- [Copilot Plus and Self-Host](copilot-plus-and-self-host.md) — Licensing and memory
+
 - [Vault Search and Indexing](vault-search-and-indexing.md) — How vault search works
 - [Context and Mentions](context-and-mentions.md) — @-mention triggers for tools

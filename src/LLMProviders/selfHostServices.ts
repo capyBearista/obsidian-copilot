@@ -1,4 +1,7 @@
-import { type Youtube4llmResponse } from "@/LLMProviders/brevilabsClient";
+export interface Youtube4llmResponse {
+  response: { transcript: string };
+  elapsed_time_ms: number;
+}
 import { getDecryptedKey } from "@/encryptionService";
 import { logError, logInfo } from "@/logger";
 import { getSettings } from "@/settings/model";

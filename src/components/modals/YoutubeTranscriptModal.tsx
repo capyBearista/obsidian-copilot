@@ -1,4 +1,3 @@
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logError } from "@/logger";
@@ -61,18 +60,14 @@ function YoutubeTranscriptModalContent({ onClose }: { onClose: () => void }) {
     setError("");
 
     try {
-      const response = await BrevilabsClient.getInstance().youtube4llm(url);
-
-      if (!response.response.transcript) {
-        throw new Error(
-          "Transcript not available. Only English videos with auto transcript enabled are supported."
-        );
-      }
+      throw new Error(
+        "YouTube transcription is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized."
+      );
 
       // Store transcript data
       const newTranscriptData: TranscriptData = {
         videoId: validation.videoId!,
-        transcript: response.response.transcript,
+        transcript: "",
         url: formatYoutubeUrl(validation.videoId!),
       };
 
@@ -205,7 +200,7 @@ export class YoutubeTranscriptModal extends Modal {
     super(app);
     // https://docs.obsidian.md/Reference/TypeScript+API/Modal/setTitle
     // @ts-ignore
-    this.setTitle("Download YouTube Script (plus)");
+    this.setTitle("Download YouTube Script");
   }
 
   onOpen() {

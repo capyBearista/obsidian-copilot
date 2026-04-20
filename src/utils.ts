@@ -1,15 +1,14 @@
 import { ChainType, Document } from "@/chainFactory";
 import {
-  ALLOWED_NOTE_CONTEXT_EXTENSIONS,
   ChatModelProviders,
-  EmbeddingModelProviders,
-  NOMIC_EMBED_TEXT,
   Provider,
   ProviderInfo,
+  USER_SENDER,
+  ALLOWED_NOTE_CONTEXT_EXTENSIONS,
+  TEXT_READABLE_EXTENSIONS,
+  NOMIC_EMBED_TEXT,
   ProviderMetadata,
   SettingKeyProviders,
-  TEXT_READABLE_EXTENSIONS,
-  USER_SENDER,
 } from "@/constants";
 import { logInfo, logWarn } from "@/logger";
 import { CopilotSettings } from "@/settings/model";
@@ -1147,7 +1146,7 @@ export async function checkLatestVersion(): Promise<{
 }> {
   try {
     const response = await requestUrl({
-      url: "https://api.github.com/repos/logancyang/obsidian-copilot/releases/latest",
+      url: "https://api.github.com/repos/capybearista/obisidian-copilot/releases/latest",
       method: "GET",
     });
     const version = response.json.tag_name.replace("v", "");
@@ -1223,8 +1222,6 @@ export function getNeedSetKeyProvider(): Provider[] {
     ChatModelProviders.LM_STUDIO,
     ChatModelProviders.AZURE_OPENAI,
     ChatModelProviders.GITHUB_COPILOT,
-    EmbeddingModelProviders.COPILOT_PLUS,
-    EmbeddingModelProviders.COPILOT_PLUS_JINA,
   ];
 
   return (Object.keys(ProviderInfo) as Provider[]).filter((key) => !excludeProviders.includes(key));

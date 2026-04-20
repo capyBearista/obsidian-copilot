@@ -1,16 +1,11 @@
-import { getStandaloneQuestion } from "@/chainUtils";
 import { TEXT_WEIGHT } from "@/constants";
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
-import { hasSelfHostSearchKey, selfHostWebSearch } from "@/LLMProviders/selfHostServices";
 import { logInfo } from "@/logger";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
-import { isSelfHostModeValid } from "@/plusUtils";
 import { RetrieverFactory } from "@/search/RetrieverFactory";
 import { getSettings } from "@/settings/model";
 import { z } from "zod";
 import { deduplicateSources } from "@/LLMProviders/chainRunner/utils/toolExecution";
 import { createLangChainTool } from "./createLangChainTool";
-import { getWebSearchCitationInstructions } from "@/LLMProviders/chainRunner/utils/citationUtils";
 import { TieredLexicalRetriever } from "@/search/v3/TieredLexicalRetriever";
 import { FilterRetriever } from "@/search/v3/FilterRetriever";
 import { RETURN_ALL_LIMIT } from "@/search/v3/SearchCore";
@@ -559,42 +554,10 @@ const webSearchTool = createLangChainTool({
     "Search the INTERNET (NOT vault notes) when user explicitly asks for web/online information",
   schema: webSearchSchema,
   func: async ({ query, chatHistory }) => {
-    try {
-      // Get standalone question considering chat history
-      const standaloneQuestion = await getStandaloneQuestion(query, chatHistory);
-
-      let webContent: string;
-      let citations: string[];
-
-      if (isSelfHostModeValid() && hasSelfHostSearchKey()) {
-        const result = await selfHostWebSearch(standaloneQuestion);
-        webContent = result.content;
-        citations = result.citations;
-      } else {
-        const response = await BrevilabsClient.getInstance().webSearch(standaloneQuestion);
-        webContent = response.response.choices[0].message.content;
-        citations = response.response.citations || [];
-      }
-
-      // Return structured JSON response for consistency with other tools
-      // Format as an array of results like localSearch does
-      const formattedResults = [
-        {
-          type: "web_search",
-          content: webContent,
-          citations: citations,
-          // Instruct the model to use footnote-style citations and definitions.
-          // Chat UI will render [^n] as [n] for readability and show a simple numbered Sources list.
-          // When inserted into a note, the original [^n] footnotes will remain valid Markdown footnotes.
-          instruction: getWebSearchCitationInstructions(),
-        },
-      ];
-
-      return formattedResults;
-    } catch (error) {
-      console.error(`Error processing web search query ${query}:`, error);
-      return { error: `Web search failed: ${error}` };
-    }
+    return {
+      error:
+        "Web Search is temporarily disabled in this free fork until a local BYOK tool-use integration is finalized.",
+    };
   },
 });
 
