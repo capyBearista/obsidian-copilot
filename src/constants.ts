@@ -939,6 +939,17 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   defaultSystemPromptTitle: "",
   autoCompactThreshold: 128000,
   convertedDocOutputFolder: DEFAULT_CONVERTED_DOC_OUTPUT_FOLDER,
+
+  // BYOK Local Tools Settings
+  localSearchProvider: "searxng",
+  tavilyApiKey: "",
+  exaApiKey: "",
+  braveApiKey: "",
+  googleSearchApiKey: "",
+  googleSearchEngineId: "",
+  searxngUrl: "",
+  ytdlpPath: "",
+  doclingPath: "",
 };
 
 export const EVENT_NAMES = {

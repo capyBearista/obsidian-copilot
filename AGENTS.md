@@ -6,12 +6,29 @@ This file provides guidance to any coding agent when working with code in this r
 
 Copilot for Obsidian is an AI-powered assistant plugin that integrates various LLM providers (OpenAI, Anthropic, Google, etc.) with Obsidian. It provides chat interfaces, autocomplete, semantic search, and various AI-powered commands for note-taking and knowledge management.
 
-## Development Commands
+- **Type**: Obsidian Plugin (Single Project)
+- **Stack**: TypeScript, React, Tailwind CSS, LangChain, Radix UI
+- **Architecture**: Repository → Manager → UIState → React Components
 
-### Build & Development
+This AGENTS.md is the authoritative source for development guidelines. 
+Subdirectories contain specialized AGENTS.md files that extend these rules.
 
-- **NEVER RUN `npm run dev`** - The user will handle all builds manually
-- `npm run build` - Production build (TypeScript check + minified output)
+## Universal Development Rules
+
+### Code Quality (MUST)
+- **MUST** use absolute imports with `@/` prefix (e.g., `import { ... } from "@/logger"`).
+- **MUST** use logging utilities from `@/logger` (`logInfo`, `logWarn`, `logError`) instead of `console.log`.
+- **MUST** add JSDoc comments for all exported functions and methods.
+- **MUST** run `npm run format && npm run lint` before committing.
+- **MUST NOT** edit `styles.css` directly; edit `src/styles/tailwind.css` instead.
+- **MUST NOT** modify AI system prompts or model adapters unless explicitly asked.
+
+### Best Practices (SHOULD)
+- **SHOULD** keep functions under 50 lines and extract complex logic.
+- **SHOULD** favor data-driven logic over service-heavy dependencies in tests.
+
+### Delivery Discipline (MUST)
+- **MUST** include tests for any logic involving message processing or search.
 
 ### Code Quality
 
@@ -252,57 +269,6 @@ This codebase has deep transitive import chains (e.g. a utility → cache → se
 3. **Pure logic in leaf modules** — Extract testable logic into small files with minimal imports. The orchestration file (which has heavy imports) calls the leaf function and passes in the dependencies. See `src/tools/convertedDocOutput.ts` as an example.
 4. **Litmus test before writing a function** — "Can I test this by calling it directly with plain arguments?" If the answer is no because of an import, that dependency should be a parameter instead.
 
-## Development Session Planning
-
-### Using TODO.md for Session Management
-
-**IMPORTANT**: When working on a development session, maintain a comprehensive `TODO.md` file that serves as the central plan and tracker:
-
-1. **Session Goal**: Define the high-level objective at the start
-2. **Task Tracking**:
-   - List all completed tasks with [x] checkboxes
-   - Track pending tasks with [ ] checkboxes
-   - Group related tasks into logical sections
-3. **Architecture Decisions**: Document key design choices and rationale
-4. **Progress Updates**: Keep the TODO.md updated as tasks complete
-5. **Testing Checklist**: Include verification steps for the session
-
-The TODO.md should be:
-
-- The single source of truth for session progress
-- Updated frequently as work progresses
-- Clear enough that another developer can understand what was done
-- Comprehensive enough to serve as a migration guide
-
-### Structure Example:
-
-```markdown
-# Development Session TODO
-
-## Session Goal
-
-[Clear statement of what this session aims to achieve]
-
-## Completed Tasks ✅
-
-- [x] Task description with key details
-- [x] Another completed task
-
-## Pending Tasks 📋
-
-- [ ] Next task to work on
-- [ ] Future enhancement
-
-## Architecture Summary
-
-[Key design decisions and rationale]
-
-## Testing Checklist
-
-- [ ] Functionality verification
-- [ ] Performance checks
-```
-
 ## Important Notes
 
 - The plugin supports multiple LLM providers with custom endpoints
@@ -311,7 +277,6 @@ The TODO.md should be:
 - Local model support available via Ollama/LM Studio
 - Rate limiting is implemented for all API calls
 - For technical debt and known issues, see [`TECHDEBT.md`](./designdocs/todo/TECHDEBT.md)
-- For current development session planning, see [`TODO.md`](./TODO.md)
 
 ## User-Facing Documentation
 

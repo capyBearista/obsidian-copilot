@@ -199,6 +199,17 @@ export interface CopilotSettings {
   autoCompactThreshold: number;
   /** Folder where converted document markdown files are saved */
   convertedDocOutputFolder: string;
+
+  // BYOK Local Tools Settings
+  localSearchProvider: "searxng" | "tavily" | "brave" | "exa" | "google";
+  tavilyApiKey: string;
+  exaApiKey: string;
+  braveApiKey: string;
+  googleSearchApiKey: string;
+  googleSearchEngineId: string;
+  searxngUrl: string;
+  ytdlpPath: string;
+  doclingPath: string;
 }
 
 export const settingsStore = createStore();
@@ -619,6 +630,42 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
       : DEFAULT_SETTINGS.userSystemPromptsFolder;
 
   sanitizedSettings.qaExclusions = sanitizeQaExclusions(settingsToSanitize.qaExclusions);
+
+  // Ensure localSearchProvider is a valid value
+  const validLocalSearchProviders = ["searxng", "tavily", "brave", "exa", "google"] as const;
+  if (
+    !validLocalSearchProviders.includes(
+      sanitizedSettings.localSearchProvider as (typeof validLocalSearchProviders)[number]
+    )
+  ) {
+    sanitizedSettings.localSearchProvider = DEFAULT_SETTINGS.localSearchProvider;
+  }
+
+  // Ensure string fields have defaults
+  if (typeof sanitizedSettings.tavilyApiKey !== "string") {
+    sanitizedSettings.tavilyApiKey = DEFAULT_SETTINGS.tavilyApiKey;
+  }
+  if (typeof sanitizedSettings.exaApiKey !== "string") {
+    sanitizedSettings.exaApiKey = DEFAULT_SETTINGS.exaApiKey;
+  }
+  if (typeof sanitizedSettings.braveApiKey !== "string") {
+    sanitizedSettings.braveApiKey = DEFAULT_SETTINGS.braveApiKey;
+  }
+  if (typeof sanitizedSettings.googleSearchApiKey !== "string") {
+    sanitizedSettings.googleSearchApiKey = DEFAULT_SETTINGS.googleSearchApiKey;
+  }
+  if (typeof sanitizedSettings.googleSearchEngineId !== "string") {
+    sanitizedSettings.googleSearchEngineId = DEFAULT_SETTINGS.googleSearchEngineId;
+  }
+  if (typeof sanitizedSettings.searxngUrl !== "string") {
+    sanitizedSettings.searxngUrl = DEFAULT_SETTINGS.searxngUrl;
+  }
+  if (typeof sanitizedSettings.ytdlpPath !== "string") {
+    sanitizedSettings.ytdlpPath = DEFAULT_SETTINGS.ytdlpPath;
+  }
+  if (typeof sanitizedSettings.doclingPath !== "string") {
+    sanitizedSettings.doclingPath = DEFAULT_SETTINGS.doclingPath;
+  }
 
   return sanitizedSettings;
 }
