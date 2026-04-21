@@ -167,7 +167,7 @@ describe("webSearch providers", () => {
     });
 
     await expect(provider.search("bad query")).rejects.toThrow(
-      /^Error: Tavily search failed \(400\): x+\.\.\.$/
+      /^Tavily search failed \(400\): x+\.\.\.$/
     );
   });
 });

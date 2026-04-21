@@ -8,10 +8,10 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:tailwindcss/recommended",
+    "plugin:tailwindcss/recommended"
   ],
   "parserOptions": {
-    "sourceType": "module",
+    "sourceType": "module"
   },
   "rules": {
     "no-unused-vars": "off",
@@ -28,25 +28,25 @@
     "tailwindcss/migration-from-tailwind-2": "error",
     "tailwindcss/no-arbitrary-value": "off",
     "tailwindcss/no-custom-classname": ["error"],
-    "tailwindcss/no-contradicting-classname": "error",
+    "tailwindcss/no-contradicting-classname": "error"
   },
   "overrides": [
     {
       "files": ["*.json", "*.jsonc", ".eslintrc"],
       "parser": "jsonc-eslint-parser",
       "rules": {
-        "jsonc/auto": "error",
-      },
-    },
+        "jsonc/auto": "error"
+      }
+    }
   ],
   "settings": {
     "react": {
-      "version": "detect",
+      "version": "detect"
     },
     "tailwindcss": {
       "callees": ["classnames", "clsx", "ctl", "cn", "cva"],
       "config": "./tailwind.config.js",
-      "cssFiles": ["**/*.css", "!**/node_modules", "!**/.*", "!**/dist", "!**/build"],
-    },
-  },
+      "cssFiles": ["**/*.css", "!**/node_modules", "!**/.*", "!**/dist", "!**/build"]
+    }
+  }
 }
