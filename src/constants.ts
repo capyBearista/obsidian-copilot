@@ -941,13 +941,9 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   convertedDocOutputFolder: DEFAULT_CONVERTED_DOC_OUTPUT_FOLDER,
 
   // BYOK Local Tools Settings
-  localSearchProvider: "searxng",
+  localSearchProvider: "tavily",
   tavilyApiKey: "",
   exaApiKey: "",
-  braveApiKey: "",
-  googleSearchApiKey: "",
-  googleSearchEngineId: "",
-  searxngUrl: "",
   ytdlpPath: "",
   doclingPath: "",
 };

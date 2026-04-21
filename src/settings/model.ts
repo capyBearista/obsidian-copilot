@@ -201,13 +201,9 @@ export interface CopilotSettings {
   convertedDocOutputFolder: string;
 
   // BYOK Local Tools Settings
-  localSearchProvider: "searxng" | "tavily" | "brave" | "exa" | "google";
+  localSearchProvider: "tavily" | "exa" | "perplexity" | "firecrawl";
   tavilyApiKey: string;
   exaApiKey: string;
-  braveApiKey: string;
-  googleSearchApiKey: string;
-  googleSearchEngineId: string;
-  searxngUrl: string;
   ytdlpPath: string;
   doclingPath: string;
 }
@@ -632,7 +628,7 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
   sanitizedSettings.qaExclusions = sanitizeQaExclusions(settingsToSanitize.qaExclusions);
 
   // Ensure localSearchProvider is a valid value
-  const validLocalSearchProviders = ["searxng", "tavily", "brave", "exa", "google"] as const;
+  const validLocalSearchProviders = ["tavily", "exa", "perplexity", "firecrawl"] as const;
   if (
     !validLocalSearchProviders.includes(
       sanitizedSettings.localSearchProvider as (typeof validLocalSearchProviders)[number]
@@ -647,18 +643,6 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
   }
   if (typeof sanitizedSettings.exaApiKey !== "string") {
     sanitizedSettings.exaApiKey = DEFAULT_SETTINGS.exaApiKey;
-  }
-  if (typeof sanitizedSettings.braveApiKey !== "string") {
-    sanitizedSettings.braveApiKey = DEFAULT_SETTINGS.braveApiKey;
-  }
-  if (typeof sanitizedSettings.googleSearchApiKey !== "string") {
-    sanitizedSettings.googleSearchApiKey = DEFAULT_SETTINGS.googleSearchApiKey;
-  }
-  if (typeof sanitizedSettings.googleSearchEngineId !== "string") {
-    sanitizedSettings.googleSearchEngineId = DEFAULT_SETTINGS.googleSearchEngineId;
-  }
-  if (typeof sanitizedSettings.searxngUrl !== "string") {
-    sanitizedSettings.searxngUrl = DEFAULT_SETTINGS.searxngUrl;
   }
   if (typeof sanitizedSettings.ytdlpPath !== "string") {
     sanitizedSettings.ytdlpPath = DEFAULT_SETTINGS.ytdlpPath;

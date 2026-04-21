@@ -1,6 +1,7 @@
 import { getDecryptedKey } from "@/encryptionService";
 import { logError } from "@/logger";
 import { getSettings } from "@/settings/model";
+import { safeFetch } from "@/utils";
 
 /**
  * Structured web search payload returned to the webSearch tool.
@@ -79,50 +80,6 @@ function formatResults(
 }
 
 /**
- * SearxNG provider using user-configured instance URL.
- */
-export class SearxngSearchProvider implements WebSearchProvider {
-  /**
-   * Execute search against a SearxNG instance.
-   *
-   * @param query - Search query.
-   */
-  async search(query: string): Promise<WebSearchResult> {
-    const url = getSettings().searxngUrl;
-    if (!url) {
-      throw new Error("SearxNG URL is not configured in settings.");
-    }
-
-    const searchUrl = new URL(url);
-    const normalizedPath = searchUrl.pathname.replace(/\/+$/, "");
-    if (normalizedPath.endsWith("/search")) {
-      searchUrl.pathname = normalizedPath || "/search";
-    } else {
-      searchUrl.pathname = `${normalizedPath}/search`;
-    }
-    searchUrl.searchParams.set("q", query);
-    searchUrl.searchParams.set("format", "json");
-
-    const response = await fetch(searchUrl.toString(), { method: "GET" });
-    if (!response.ok) {
-      const body = await readErrorBody(response);
-      throw new Error(`SearxNG search failed (${response.status}): ${body}`);
-    }
-
-    const data = await response.json();
-    const results = Array.isArray(data?.results) ? data.results : [];
-    return formatResults(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      results.map((item: any) => ({
-        title: item?.title,
-        snippet: item?.content ?? item?.snippet,
-        url: item?.url,
-      }))
-    );
-  }
-}
-
-/**
  * Tavily API provider.
  */
 export class TavilySearchProvider implements WebSearchProvider {
@@ -138,7 +95,7 @@ export class TavilySearchProvider implements WebSearchProvider {
     }
     const apiKey = await getDecryptedKey(rawKey);
 
-    const response = await fetch("https://api.tavily.com/search", {
+    const response = await safeFetch("https://api.tavily.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -150,6 +107,7 @@ export class TavilySearchProvider implements WebSearchProvider {
         include_raw_content: false,
         max_results: 5,
       }),
+      throwOnHttpError: false,
     });
 
     if (!response.ok) {
@@ -186,7 +144,7 @@ export class ExaSearchProvider implements WebSearchProvider {
     }
     const apiKey = await getDecryptedKey(rawKey);
 
-    const response = await fetch("https://api.exa.ai/search", {
+    const response = await safeFetch("https://api.exa.ai/search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -194,12 +152,13 @@ export class ExaSearchProvider implements WebSearchProvider {
       },
       body: JSON.stringify({
         query,
-        useAutoprompt: true,
+        type: "auto",
         numResults: 5,
         contents: {
           text: true,
         },
       }),
+      throwOnHttpError: false,
     });
 
     if (!response.ok) {
@@ -221,45 +180,47 @@ export class ExaSearchProvider implements WebSearchProvider {
 }
 
 /**
- * Brave Search API provider.
+ * Perplexity Search API provider.
  */
-export class BraveSearchProvider implements WebSearchProvider {
+export class PerplexitySearchProvider implements WebSearchProvider {
   /**
-   * Execute search via Brave Search API.
+   * Execute search via Perplexity Search API.
    *
    * @param query - Search query.
    */
   async search(query: string): Promise<WebSearchResult> {
-    const rawKey = getSettings().braveApiKey;
+    const rawKey = getSettings().perplexityApiKey;
     if (!rawKey) {
-      throw new Error("Brave API key is not configured.");
+      throw new Error("Perplexity API key is not configured.");
     }
     const apiKey = await getDecryptedKey(rawKey);
 
-    const url = new URL("https://api.search.brave.com/res/v1/web/search");
-    url.searchParams.set("q", query);
-    url.searchParams.set("count", "5");
-
-    const response = await fetch(url.toString(), {
+    const response = await safeFetch("https://api.perplexity.ai/search", {
+      method: "POST",
       headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip",
-        "X-Subscription-Token": apiKey,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
+      body: JSON.stringify({
+        query,
+        max_results: 5,
+        max_tokens_per_page: 4096,
+      }),
+      throwOnHttpError: false,
     });
 
     if (!response.ok) {
       const body = await readErrorBody(response);
-      throw new Error(`Brave search failed (${response.status}): ${body}`);
+      throw new Error(`Perplexity search failed (${response.status}): ${body}`);
     }
 
     const data = await response.json();
-    const results = Array.isArray(data?.web?.results) ? data.web.results : [];
+    const results = Array.isArray(data?.results) ? data.results : [];
     return formatResults(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       results.map((item: any) => ({
         title: item?.title,
-        snippet: item?.description,
+        snippet: item?.snippet,
         url: item?.url,
       }))
     );
@@ -267,42 +228,50 @@ export class BraveSearchProvider implements WebSearchProvider {
 }
 
 /**
- * Google Custom Search JSON API provider.
+ * Firecrawl Search API provider.
  */
-export class GoogleCustomSearchProvider implements WebSearchProvider {
+export class FirecrawlSearchProvider implements WebSearchProvider {
   /**
-   * Execute search via Google Custom Search API.
+   * Execute search via Firecrawl Search API (combines search + scraping).
    *
    * @param query - Search query.
    */
   async search(query: string): Promise<WebSearchResult> {
-    const rawKey = getSettings().googleSearchApiKey;
-    const cx = getSettings().googleSearchEngineId;
-    if (!rawKey || !cx) {
-      throw new Error("Google Search API key or Engine ID is not configured.");
+    const rawKey = getSettings().firecrawlApiKey;
+    if (!rawKey) {
+      throw new Error("Firecrawl API key is not configured.");
     }
     const apiKey = await getDecryptedKey(rawKey);
 
-    const url = new URL("https://www.googleapis.com/customsearch/v1");
-    url.searchParams.set("key", apiKey);
-    url.searchParams.set("cx", cx);
-    url.searchParams.set("q", query);
-    url.searchParams.set("num", "5");
+    const response = await safeFetch("https://api.firecrawl.dev/v2/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        query,
+        limit: 5,
+        scrapeOptions: {
+          formats: [{ type: "markdown" }],
+        },
+      }),
+      throwOnHttpError: false,
+    });
 
-    const response = await fetch(url.toString());
     if (!response.ok) {
       const body = await readErrorBody(response);
-      throw new Error(`Google search failed (${response.status}): ${body}`);
+      throw new Error(`Firecrawl search failed (${response.status}): ${body}`);
     }
 
     const data = await response.json();
-    const results = Array.isArray(data?.items) ? data.items : [];
+    const results = Array.isArray(data?.data?.web) ? data.data.web : [];
     return formatResults(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       results.map((item: any) => ({
         title: item?.title,
-        snippet: item?.snippet,
-        url: item?.link,
+        snippet: item?.markdown ?? item?.description,
+        url: item?.url,
       }))
     );
   }
@@ -315,16 +284,14 @@ export function getWebSearchProvider(): WebSearchProvider {
   const provider = getSettings().localSearchProvider;
 
   switch (provider) {
-    case "searxng":
-      return new SearxngSearchProvider();
     case "tavily":
       return new TavilySearchProvider();
     case "exa":
       return new ExaSearchProvider();
-    case "brave":
-      return new BraveSearchProvider();
-    case "google":
-      return new GoogleCustomSearchProvider();
+    case "perplexity":
+      return new PerplexitySearchProvider();
+    case "firecrawl":
+      return new FirecrawlSearchProvider();
     default:
       logError(`Unsupported localSearchProvider value: ${provider}`);
       throw new Error(`Unknown search provider: ${provider}`);

@@ -26,32 +26,16 @@ export const LocalToolsSettings: React.FC = () => {
           onChange={(value) =>
             updateSetting(
               "localSearchProvider",
-              value as "searxng" | "tavily" | "brave" | "exa" | "google"
+              value as "tavily" | "exa" | "perplexity" | "firecrawl"
             )
           }
           options={[
-            { label: "SearxNG (Self-hosted/Free)", value: "searxng" },
             { label: "Tavily API", value: "tavily" },
-            { label: "Brave Search API", value: "brave" },
             { label: "Exa API", value: "exa" },
-            { label: "Google Custom Search", value: "google" },
+            { label: "Perplexity Search API", value: "perplexity" },
+            { label: "Firecrawl Search API", value: "firecrawl" },
           ]}
         />
-
-        {settings.localSearchProvider === "searxng" && (
-          <div className="tw-flex tw-flex-col tw-gap-2">
-            <div className="tw-text-sm tw-font-medium">SearxNG Instance URL</div>
-            <div className="tw-mb-1 tw-text-sm tw-text-muted">
-              URL of your SearxNG instance (e.g., http://localhost:8080 or
-              https://search.example.com). Make sure JSON output is enabled on the instance.
-            </div>
-            <Input
-              value={settings.searxngUrl}
-              onChange={(e) => updateSetting("searxngUrl", e.target.value)}
-              placeholder="http://localhost:8080"
-            />
-          </div>
-        )}
 
         {settings.localSearchProvider === "tavily" && (
           <div className="tw-flex tw-flex-col tw-gap-2">
@@ -70,27 +54,6 @@ export const LocalToolsSettings: React.FC = () => {
               value={settings.tavilyApiKey}
               onChange={(value) => updateSetting("tavilyApiKey", value)}
               placeholder="tvly-..."
-            />
-          </div>
-        )}
-
-        {settings.localSearchProvider === "brave" && (
-          <div className="tw-flex tw-flex-col tw-gap-2">
-            <div className="tw-text-sm tw-font-medium">Brave Search API Key</div>
-            <div className="tw-mb-1 tw-text-sm tw-text-muted">
-              <a
-                href="https://brave.com/search/api/"
-                target="_blank"
-                rel="noreferrer"
-                className="tw-flex tw-items-center tw-gap-1 tw-text-accent"
-              >
-                Get API Key <ExternalLink className="tw-size-3" />
-              </a>
-            </div>
-            <PasswordInput
-              value={settings.braveApiKey}
-              onChange={(value) => updateSetting("braveApiKey", value)}
-              placeholder="BSA..."
             />
           </div>
         )}
@@ -116,35 +79,46 @@ export const LocalToolsSettings: React.FC = () => {
           </div>
         )}
 
-        {settings.localSearchProvider === "google" && (
-          <>
-            <div className="tw-flex tw-flex-col tw-gap-2">
-              <div className="tw-text-sm tw-font-medium">Google Search API Key</div>
-              <div className="tw-mb-1 tw-text-sm tw-text-muted">
-                <a
-                  href="https://developers.google.com/custom-search/v1/overview"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="tw-flex tw-items-center tw-gap-1 tw-text-accent"
-                >
-                  Get API Key <ExternalLink className="tw-size-3" />
-                </a>
-              </div>
-              <PasswordInput
-                value={settings.googleSearchApiKey}
-                onChange={(value) => updateSetting("googleSearchApiKey", value)}
-                placeholder="AIzaSy..."
-              />
+        {settings.localSearchProvider === "perplexity" && (
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            <div className="tw-text-sm tw-font-medium">Perplexity API Key</div>
+            <div className="tw-mb-1 tw-text-sm tw-text-muted">
+              <a
+                href="https://docs.perplexity.ai/"
+                target="_blank"
+                rel="noreferrer"
+                className="tw-flex tw-items-center tw-gap-1 tw-text-accent"
+              >
+                Get API Key <ExternalLink className="tw-size-3" />
+              </a>
             </div>
-            <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-2">
-              <div className="tw-text-sm tw-font-medium">Google Search Engine ID (CX)</div>
-              <Input
-                value={settings.googleSearchEngineId}
-                onChange={(e) => updateSetting("googleSearchEngineId", e.target.value)}
-                placeholder="0123456789abcde..."
-              />
+            <PasswordInput
+              value={settings.perplexityApiKey}
+              onChange={(value) => updateSetting("perplexityApiKey", value)}
+              placeholder="pplx-..."
+            />
+          </div>
+        )}
+
+        {settings.localSearchProvider === "firecrawl" && (
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            <div className="tw-text-sm tw-font-medium">Firecrawl API Key</div>
+            <div className="tw-mb-1 tw-text-sm tw-text-muted">
+              <a
+                href="https://www.firecrawl.dev/"
+                target="_blank"
+                rel="noreferrer"
+                className="tw-flex tw-items-center tw-gap-1 tw-text-accent"
+              >
+                Get API Key <ExternalLink className="tw-size-3" />
+              </a>
             </div>
-          </>
+            <PasswordInput
+              value={settings.firecrawlApiKey}
+              onChange={(value) => updateSetting("firecrawlApiKey", value)}
+              placeholder="fc-..."
+            />
+          </div>
         )}
 
         {/* YouTube Section */}

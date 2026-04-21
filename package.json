@@ -8,6 +8,7 @@
     "dev:tailwind": "npx tailwindcss -i src/styles/tailwind.css -o styles.css --watch",
     "dev:esbuild": "node esbuild.config.mjs",
     "build": "npm run build:tailwind && npm run build:esbuild || exit 1",
+    "build:deploy": "npm run build && cp ./main.js ./manifest.json ./styles.css \"/mnt/d/Obsidian/test-vault/.obsidian/plugins/obsidian-copilot-free/\"",
     "build:tailwind": "npx tailwindcss -i src/styles/tailwind.css -o styles.css --minify",
     "build:esbuild": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
